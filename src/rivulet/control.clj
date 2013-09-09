@@ -2,27 +2,27 @@
   (:require [immutant.messaging :as msg]))
 
 (defonce command-listener (atom nil))
-(defonce sampler-listeners (atom {}))
+(defonce filter-listeners (atom {}))
 
-(defn- match-stream [result-dest sampler data]
-  (if (re-find (re-pattern sampler) data)
-    (msg/publish result-dest [sampler data])))
+(defn- filter-stream [result-dest filter data]
+  (if (re-find (re-pattern filter) data)
+    (msg/publish result-dest [filter data])))
 
-(defn- remove-stream-matcher [sampler]
-  (when-let [listener (@sampler-listeners sampler)]
+(defn- remove-stream-filter [filter]
+  (when-let [listener (@filter-listeners filter)]
     (msg/unlisten listener)
-    (swap! sampler-listeners dissoc sampler)))
+    (swap! filter-listeners dissoc filter)))
 
-(defn- add-stream-matcher [stream-dest result-dest sampler]
-  (if-not (@sampler-listeners sampler)
-    (swap! sampler-listeners assoc sampler
+(defn- add-stream-filter [stream-dest result-dest filter]
+  (if-not (@filter-listeners filter)
+    (swap! filter-listeners assoc filter
            (msg/listen stream-dest
-                       (partial match-stream result-dest sampler)))))
+                       (partial filter-stream result-dest filter)))))
 
 (defn- dispatch [stream-dest result-dest {:keys [command payload] :as msg}]
   (condp = command
-    "add-sampler" (add-stream-matcher stream-dest result-dest payload)
-    "delete-sampler" (remove-stream-matcher payload)))
+    "add-filter" (add-stream-filter stream-dest result-dest payload)
+    "delete-filter" (remove-stream-filter payload)))
 
 (defn start [command-dest stream-dest result-dest]
   (reset! command-listener
@@ -33,5 +33,5 @@
   (when @command-listener
     (msg/unlisten @command-listener)
     (reset! command-listener nil))
-  (doseq [sampler (keys @sampler-listeners)]
-    (remove-stream-matcher sampler)))
+  (doseq [filter (keys @filter-listeners)]
+    (remove-stream-filter filter)))

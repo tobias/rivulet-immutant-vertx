@@ -14,7 +14,7 @@
         [stream-dest command-dest result-dest])
   (control/start command-dest stream-dest result-dest)
   (bridge/start :incoming [command-dest]
-                :outgoing [result-dest])
+                :outgoing [result-dest stream-dest])
   (producer/start stream-dest)
   (web/start))
 

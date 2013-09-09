@@ -2,7 +2,7 @@
   (:require [enfocus.core :as ef]
             [enfocus.events :as events]
             vertx.eventbus)
-   (:require-macros [enfocus.macros :as em]))
+  (:require-macros [enfocus.macros :as em]))
 
 (def eb (atom nil))
 
@@ -17,44 +17,60 @@
   (.publish @eb "topic.commands"
             (clj->js {:command command :payload payload})))
 
-(defn sampler-selector [sampler]
-  (format "div.sampler[data-sampler=\"%s\"]" sampler))
+(defn filter-selector [filter]
+  (format "div.filter[data-filter=\"%s\"]" filter))
 
-(defn delete-sampler [sampler]
-  (send-command "delete-sampler" sampler)
-  (ef/at (sampler-selector sampler) (ef/remove-node)))
+(defn delete-filter [filter]
+  (send-command "delete-filter" filter)
+  (ef/at (filter-selector filter) (ef/remove-node)))
 
-(em/defaction enable-delete-button [sampler]
-  (str (sampler-selector sampler) " button") (events/listen :click
-                                                      #(delete-sampler sampler)))
-(defn add-sampler [sampler]
-  (ef/at "#samplers"
+(em/defaction enable-delete-button [filter]
+  (str (filter-selector filter) " button") (events/listen :click
+                                                          #(delete-filter filter)))
+(defn add-filter [filter]
+  (ef/at "#filters"
          (ef/append
-          (ef/html [:div {:class "sampler"
-                          :data-sampler sampler}
-                    [:span {:class "title"} sampler]
+          (ef/html [:div {:class "filter"
+                          :data-filter filter}
+                    [:span {:class "title"} filter]
                     " "
                     [:button "Delete"]
                     [:div {:class "results"}]])))
-  (enable-delete-button sampler)
-  (send-command "add-sampler" sampler))
+  (enable-delete-button filter)
+  (send-command "add-filter" filter))
 
 (em/defaction enable-add-button []
-  "#add-sampler" (events/listen :click
-                             #(add-sampler
-                               (ef/from "#sampler" (ef/get-prop :value)))))
+  "#add-filter" (events/listen :click
+                               #(add-filter
+                                 (ef/from "#filter" (ef/get-prop :value)))))
 
-(em/defaction result-listener [[sampler result]]
-  (str (sampler-selector sampler) " div.results")
+(em/defaction result-listener [[filter result]]
+  (str (filter-selector filter) " div.results")
   (ef/prepend (ef/html [:div result])))
 
 (defn attach-result-listener []
   (.registerHandler @eb "topic.matches" result-listener))
 
+(em/defaction copy-raw-stream [val]
+  "#raw-stream" (ef/prepend (ef/html [:div val])))
+
+(defn toggle-raw-stream []
+  (if (ef/from "#raw-stream" (ef/get-attr :id))
+    (do
+      (ef/at "#raw-stream" (ef/remove-node))
+      (.unregisterHandler @eb "topic.stream" copy-raw-stream))
+    (do
+      (ef/at "#raw" (ef/append (ef/html [:div {:id "raw-stream"}])))
+      (.registerHandler @eb "topic.stream" copy-raw-stream))))
+
+(em/defaction enable-raw-button []
+  "#toggle-raw" (events/listen :click toggle-raw-stream))
+
 (defn init []
   (open-eventbus
    (fn []
-     (attach-result-listener)))
-  (enable-add-button))
+     (attach-result-listener)
+     (enable-add-button)
+     (enable-raw-button))))
 
 (set! (.-onload js/window) init)

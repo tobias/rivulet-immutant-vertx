@@ -15,9 +15,14 @@
     (page/include-css "client.css")]
    [:body
     [:h2 "Rivulet"]
-    (form/text-field :sampler)
-    (form/submit-button {:id "add-sampler"} "Add Sampler")
-    [:div {:id "samplers"}]]))
+    (form/text-field :filter)
+    [:button {:id "add-filter"} "Add Filter"]
+    [:button {:id "toggle-raw"} "Toggle Raw Stream"]
+    [:div
+     [:div {:id "filters"}
+      [:h4 "Filters"]]
+     [:div {:id "raw"}
+      [:h4 "Raw Stream"]]]]))
 
 (defroutes routes
   (GET "/" []

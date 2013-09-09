@@ -33786,42 +33786,58 @@ rivulet.client.open_eventbus = function open_eventbus(on_open) {
 rivulet.client.send_command = function send_command(command, payload) {
   return cljs.core.deref.call(null, rivulet.client.eb).publish("topic.commands", cljs.core.clj__GT_js.call(null, cljs.core.PersistentArrayMap.fromArray(["\ufdd0:command", command, "\ufdd0:payload", payload], true)))
 };
-rivulet.client.sampler_selector = function sampler_selector(sampler) {
-  return cljs.core.format.call(null, 'div.sampler[data-sampler="%s"]', sampler)
+rivulet.client.filter_selector = function filter_selector(filter) {
+  return cljs.core.format.call(null, 'div.filter[data-filter="%s"]', filter)
 };
-rivulet.client.delete_sampler = function delete_sampler(sampler) {
-  rivulet.client.send_command.call(null, "delete-sampler", sampler);
-  return enfocus.core.at.call(null, rivulet.client.sampler_selector.call(null, sampler), enfocus.core.remove_node.call(null))
+rivulet.client.delete_filter = function delete_filter(filter) {
+  rivulet.client.send_command.call(null, "delete-filter", filter);
+  return enfocus.core.at.call(null, rivulet.client.filter_selector.call(null, filter), enfocus.core.remove_node.call(null))
 };
-rivulet.client.enable_delete_button = function enable_delete_button(sampler) {
-  return enfocus.core.at.call(null, document, [cljs.core.str(rivulet.client.sampler_selector.call(null, sampler)), cljs.core.str(" button")].join(""), enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return rivulet.client.delete_sampler.call(null, sampler)
+rivulet.client.enable_delete_button = function enable_delete_button(filter) {
+  return enfocus.core.at.call(null, document, [cljs.core.str(rivulet.client.filter_selector.call(null, filter)), cljs.core.str(" button")].join(""), enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return rivulet.client.delete_filter.call(null, filter)
   }))
 };
-rivulet.client.add_sampler = function add_sampler(sampler) {
-  enfocus.core.at.call(null, "#samplers", enfocus.core.append.call(null, enfocus.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0:div", cljs.core.PersistentArrayMap.fromArray(["\ufdd0:class", "sampler", "\ufdd0:data-sampler", sampler], true), cljs.core.PersistentVector.fromArray(["\ufdd0:span", cljs.core.PersistentArrayMap.fromArray(["\ufdd0:class", "title"], true), sampler], true), " ", cljs.core.PersistentVector.fromArray(["\ufdd0:button", "Delete"], true), cljs.core.PersistentVector.fromArray(["\ufdd0:div", 
+rivulet.client.add_filter = function add_filter(filter) {
+  enfocus.core.at.call(null, "#filters", enfocus.core.append.call(null, enfocus.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0:div", cljs.core.PersistentArrayMap.fromArray(["\ufdd0:class", "filter", "\ufdd0:data-filter", filter], true), cljs.core.PersistentVector.fromArray(["\ufdd0:span", cljs.core.PersistentArrayMap.fromArray(["\ufdd0:class", "title"], true), filter], true), " ", cljs.core.PersistentVector.fromArray(["\ufdd0:button", "Delete"], true), cljs.core.PersistentVector.fromArray(["\ufdd0:div", 
   cljs.core.PersistentArrayMap.fromArray(["\ufdd0:class", "results"], true)], true)], true))));
-  rivulet.client.enable_delete_button.call(null, sampler);
-  return rivulet.client.send_command.call(null, "add-sampler", sampler)
+  rivulet.client.enable_delete_button.call(null, filter);
+  return rivulet.client.send_command.call(null, "add-filter", filter)
 };
 rivulet.client.enable_add_button = function enable_add_button() {
-  return enfocus.core.at.call(null, document, "#add-sampler", enfocus.events.listen.call(null, "\ufdd0:click", function() {
-    return rivulet.client.add_sampler.call(null, enfocus.core.from.call(null, "#sampler", enfocus.core.get_prop.call(null, "\ufdd0:value")))
+  return enfocus.core.at.call(null, document, "#add-filter", enfocus.events.listen.call(null, "\ufdd0:click", function() {
+    return rivulet.client.add_filter.call(null, enfocus.core.from.call(null, "#filter", enfocus.core.get_prop.call(null, "\ufdd0:value")))
   }))
 };
 rivulet.client.result_listener = function result_listener(p__4043) {
   var vec__4045 = p__4043;
-  var sampler = cljs.core.nth.call(null, vec__4045, 0, null);
+  var filter = cljs.core.nth.call(null, vec__4045, 0, null);
   var result = cljs.core.nth.call(null, vec__4045, 1, null);
-  return enfocus.core.at.call(null, document, [cljs.core.str(rivulet.client.sampler_selector.call(null, sampler)), cljs.core.str(" div.results")].join(""), enfocus.core.prepend.call(null, enfocus.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0:div", result], true))))
+  return enfocus.core.at.call(null, document, [cljs.core.str(rivulet.client.filter_selector.call(null, filter)), cljs.core.str(" div.results")].join(""), enfocus.core.prepend.call(null, enfocus.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0:div", result], true))))
 };
 rivulet.client.attach_result_listener = function attach_result_listener() {
   return cljs.core.deref.call(null, rivulet.client.eb).registerHandler("topic.matches", rivulet.client.result_listener)
 };
+rivulet.client.copy_raw_stream = function copy_raw_stream(val) {
+  return enfocus.core.at.call(null, document, "#raw-stream", enfocus.core.prepend.call(null, enfocus.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0:div", val], true))))
+};
+rivulet.client.toggle_raw_stream = function toggle_raw_stream() {
+  if(cljs.core.truth_(enfocus.core.from.call(null, "#raw-stream", enfocus.core.get_attr.call(null, "\ufdd0:id")))) {
+    enfocus.core.at.call(null, "#raw-stream", enfocus.core.remove_node.call(null));
+    return cljs.core.deref.call(null, rivulet.client.eb).unregisterHandler("topic.stream", rivulet.client.copy_raw_stream)
+  }else {
+    enfocus.core.at.call(null, "#raw", enfocus.core.append.call(null, enfocus.core.html.call(null, cljs.core.PersistentVector.fromArray(["\ufdd0:div", cljs.core.PersistentArrayMap.fromArray(["\ufdd0:id", "raw-stream"], true)], true))));
+    return cljs.core.deref.call(null, rivulet.client.eb).registerHandler("topic.stream", rivulet.client.copy_raw_stream)
+  }
+};
+rivulet.client.enable_raw_button = function enable_raw_button() {
+  return enfocus.core.at.call(null, document, "#toggle-raw", enfocus.events.listen.call(null, "\ufdd0:click", rivulet.client.toggle_raw_stream))
+};
 rivulet.client.init = function init() {
-  rivulet.client.open_eventbus.call(null, function() {
-    return rivulet.client.attach_result_listener.call(null)
-  });
-  return rivulet.client.enable_add_button.call(null)
+  return rivulet.client.open_eventbus.call(null, function() {
+    rivulet.client.attach_result_listener.call(null);
+    rivulet.client.enable_add_button.call(null);
+    return rivulet.client.enable_raw_button.call(null)
+  })
 };
 window.onload = rivulet.client.init;
