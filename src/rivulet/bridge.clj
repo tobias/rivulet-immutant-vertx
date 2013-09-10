@@ -9,7 +9,7 @@
 
 (defonce vertx (atom nil))
 
-(defmacro with-vertx [&body]
+(defmacro with-vertx [& body]
   `(vembed/with-vertx @vertx ~@body))
 
 (defn dest->eventbus [dest address]
