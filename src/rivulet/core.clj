@@ -10,8 +10,7 @@
 (def result-dest "topic.matches")
 
 (defn start []
-  (mapv msg/start
-        [stream-dest command-dest result-dest])
+  (mapv msg/start [stream-dest command-dest result-dest])
   (control/start command-dest stream-dest result-dest)
   (bridge/start :incoming [command-dest]
                 :outgoing [result-dest stream-dest])
@@ -23,6 +22,5 @@
   (producer/stop)
   (bridge/stop)
   (control/stop)
-  (mapv msg/stop
-        [stream-dest command-dest result-dest]))
+  (mapv msg/stop [stream-dest command-dest result-dest]))
 
