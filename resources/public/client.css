@@ -14,7 +14,7 @@ div.results {
   max-height: 200px;
 }
 
-#filters, #raw {
+#filters, #raw-wrapper {
   float: left;
   width: 50%;
 }

@@ -4,14 +4,12 @@
             [compojure.handler :as handler]
             [hiccup.page :as page]
             [hiccup.form :as form]
-            [clojure.java.io :as io]
             [immutant.web :as web]))
 
 (defn home []
   (page/html4
    [:head
-    (page/include-js "http://cdn.sockjs.org/sockjs-0.3.4.min.js"
-                     "client.js")
+    (page/include-js "client.js")
     (page/include-css "client.css")]
    [:body
     [:h2 "Rivulet"]
@@ -21,12 +19,11 @@
     [:div
      [:div {:id "filters"}
       [:h4 "Filters"]]
-     [:div {:id "raw"}
+     [:div {:id "raw-wrapper"}
       [:h4 "Raw Stream"]]]]))
 
 (defroutes routes
-  (GET "/" []
-       (home))
+  (GET "/" [] (home))
   (route/resources "/")
   (route/not-found "<h1>Not Found</h1>"))
 
