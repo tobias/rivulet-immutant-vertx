@@ -1,4 +1,4 @@
-(ns rivulet.core
+(ns rivulet.init
   (:require [immutant.messaging :as msg]
             [rivulet.control :as control]
             [rivulet.producer :as producer]
