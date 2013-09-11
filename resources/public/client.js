@@ -37063,21 +37063,36 @@ vertx.client.eventbus.unregister_handler = function unregister_handler(id) {
 vertx.client.eventbus.close = function close(eb) {
   return eb.close()
 };
+goog.provide("cljs_uuid.core");
+goog.require("cljs.core");
+goog.require("goog.string.StringBuffer");
+cljs_uuid.core.make_random = function make_random() {
+  var f = function f() {
+    return cljs.core.rand_int.call(null, 16).toString(16)
+  };
+  var g = function g() {
+    return(8 | 3 & cljs.core.rand_int.call(null, 15)).toString(16)
+  };
+  return new cljs.core.UUID((new goog.string.StringBuffer(f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), "-", f.call(null), f.call(null), f.call(null), f.call(null), "-4", f.call(null), f.call(null), f.call(null), "-", g.call(null), f.call(null), f.call(null), f.call(null), "-", f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null), f.call(null))).toString())
+};
+cljs_uuid.core.make_v4 = cljs_uuid.core.make_random;
 goog.provide("rivulet.client");
 goog.require("cljs.core");
+goog.require("cljs_uuid.core");
 goog.require("vertx.client.eventbus");
 goog.require("enfocus.events");
 goog.require("enfocus.core");
 rivulet.client.eb = cljs.core.atom.call(null, null);
+rivulet.client.client_id = cljs_uuid.core.make_random.call(null).uuid;
 rivulet.client.open_eventbus = function open_eventbus(on_open) {
-  cljs.core.reset_BANG_.call(null, rivulet.client.eb, vertx.client.eventbus.eventbus.call(null, "http://localhost:8081/bridge"));
+  cljs.core.reset_BANG_.call(null, rivulet.client.eb, vertx.client.eventbus.eventbus.call(null, sockjs_endpoint));
   vertx.client.eventbus.on_open.call(null, cljs.core.deref.call(null, rivulet.client.eb), function() {
     return console.log("eventbus opened")
   });
   return vertx.client.eventbus.on_open.call(null, cljs.core.deref.call(null, rivulet.client.eb), on_open)
 };
 rivulet.client.send_command = function send_command(command, payload) {
-  return vertx.client.eventbus.publish.call(null, cljs.core.deref.call(null, rivulet.client.eb), "topic.commands", cljs.core.PersistentArrayMap.fromArray([new cljs.core.Keyword(null, "command", "command", 1964298941), command, new cljs.core.Keyword(null, "payload", "payload", 4522169600), payload], true))
+  return vertx.client.eventbus.publish.call(null, cljs.core.deref.call(null, rivulet.client.eb), "topic.commands", cljs.core.PersistentArrayMap.fromArray([new cljs.core.Keyword(null, "command", "command", 1964298941), command, new cljs.core.Keyword(null, "client-id", "client-id", 3404733903), rivulet.client.client_id, new cljs.core.Keyword(null, "payload", "payload", 4522169600), payload], true))
 };
 rivulet.client.filter_selector = function filter_selector(filter) {
   return cljs.core.format.call(null, 'div.filter[data-filter\x3d"%s"]', filter)
@@ -37109,7 +37124,7 @@ rivulet.client.result_listener = function result_listener(p__4513) {
   return rivulet.client.prepend_html.call(null, [cljs.core.str(rivulet.client.filter_selector.call(null, filter)), cljs.core.str(" div.results")].join(""), cljs.core.PersistentVector.fromArray([new cljs.core.Keyword(null, "div", "div", 1014003715), result], true))
 };
 rivulet.client.attach_result_listener = function attach_result_listener() {
-  return vertx.client.eventbus.on_message.call(null, cljs.core.deref.call(null, rivulet.client.eb), "topic.matches", rivulet.client.result_listener)
+  return vertx.client.eventbus.on_message.call(null, cljs.core.deref.call(null, rivulet.client.eb), [cljs.core.str("results."), cljs.core.str(rivulet.client.client_id)].join(""), rivulet.client.result_listener)
 };
 var raw_handler_4517 = cljs.core.atom.call(null, null);
 rivulet.client.toggle_raw_stream = function toggle_raw_stream() {

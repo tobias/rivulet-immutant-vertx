@@ -1,19 +1,22 @@
 (ns rivulet.client
   (:require [enfocus.core :as ef]
             [enfocus.events :as events]
-            [vertx.client.eventbus :as eb])
+            [vertx.client.eventbus :as eb]
+            [cljs-uuid.core :as uuid])
   (:require-macros [enfocus.macros :as em]))
 
 (def eb (atom nil))
 
+(def client-id (.-uuid (uuid/make-random)))
+
 (defn open-eventbus [on-open]
-  (reset! eb (eb/eventbus "http://localhost:8081/bridge"))
+  (reset! eb (eb/eventbus js/sockjs_endpoint))
   (eb/on-open @eb #(.log js/console "eventbus opened"))
   (eb/on-open @eb on-open))
 
 (defn send-command [command payload]
   (eb/publish @eb "topic.commands"
-              {:command command :payload payload}))
+              {:command command :client-id client-id :payload payload}))
 
 (defn filter-selector [filter]
   (format "div.filter[data-filter=\"%s\"]" filter))
@@ -48,7 +51,7 @@
                 [:div result]))
 
 (defn attach-result-listener []
-  (eb/on-message @eb "topic.matches" result-listener))
+  (eb/on-message @eb (str "results." client-id) result-listener))
 
 (let [raw-handler (atom nil)]
   (defn toggle-raw-stream []

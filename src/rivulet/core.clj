@@ -5,16 +5,17 @@
             [rivulet.bridge :as bridge]
             [rivulet.web :as web]))
 
-(def stream-dest "topic.stream")
-(def command-dest "topic.commands")
-(def result-dest "topic.matches")
+(def destinations {:stream-dest "topic.stream"
+                   :command-dest "topic.commands"
+                   :result-dest "topic.matches"})
 
 (defn start []
-  (mapv msg/start [stream-dest command-dest result-dest])
-  (control/start command-dest stream-dest result-dest)
-  (bridge/start :incoming [command-dest]
-                :outgoing [result-dest stream-dest])
-  (producer/start stream-dest)
+  (mapv msg/start (vals destinations))
+  (control/start destinations)
+  (bridge/start destinations
+                :incoming [:command-dest]
+                :outgoing [:stream-dest])
+  (producer/start (:stream-dest destinations))
   (web/start))
 
 (defn stop []
@@ -22,5 +23,5 @@
   (producer/stop)
   (bridge/stop)
   (control/stop)
-  (mapv msg/stop [stream-dest command-dest result-dest]))
+  (mapv msg/stop (vals destinations)))
 

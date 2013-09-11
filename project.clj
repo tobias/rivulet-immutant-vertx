@@ -10,13 +10,16 @@
                  [io.vertx/clojure-api "0.2.0-SNAPSHOT"]
                  [compojure "1.1.5"]
                  [hiccup "1.0.4"]
-                 [enfocus "2.0.0-beta1"]]
+                 [enfocus "2.0.0-beta1"]
+                 [cljs-uuid "0.0.4"]]
   :repositories [["JBoss Polyglot"
                   "http://downloads.immutant.org/upstream/"]
                  ["sonatype snapshots"
                   "https://oss.sonatype.org/content/repositories/snapshots"]]
   :plugins [[lein-cljsbuild "0.3.2"]]
-  :immutant {:init rivulet.core/start}
+  :immutant {:init rivulet.core/start
+             :context-path "/"
+             :sockjs-port 8081}
   :cljsbuild {:builds [{:source-paths ["src-cljs"]
                         :compiler {:output-to "resources/public/client.js"
                                    :foreign-libs [{:file "js/vertxbus.js"

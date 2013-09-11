@@ -4,13 +4,16 @@
             [compojure.handler :as handler]
             [hiccup.page :as page]
             [hiccup.form :as form]
-            [immutant.web :as web]))
+            [immutant.web :as web]
+            [rivulet.bridge :as bridge]))
 
 (defn home []
   (page/html4
    [:head
     (page/include-js "client.js")
-    (page/include-css "client.css")]
+    (page/include-css "client.css")
+    [:script {:type "text/javascript"}
+     (format "var sockjs_endpoint = \"%s\";" (:url (bridge/endpoint)))]]
    [:body
     [:h2 "Rivulet"]
     (form/text-field :filter)
