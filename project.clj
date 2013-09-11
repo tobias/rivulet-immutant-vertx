@@ -6,15 +6,12 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-1877"]
                  [cheshire "5.2.0" :exclusions [com.fasterxml.jackson.core/jackson-core]]
-                 [org.immutant/immutant "1.1.0-SNAPSHOT"]
                  [io.vertx/clojure-api "0.2.0-SNAPSHOT"]
                  [compojure "1.1.5"]
                  [hiccup "1.0.4"]
                  [enfocus "2.0.0-beta1"]
                  [cljs-uuid "0.0.4"]]
-  :repositories [["JBoss Polyglot"
-                  "http://downloads.immutant.org/upstream/"]
-                 ["sonatype snapshots"
+  :repositories [["sonatype snapshots"
                   "https://oss.sonatype.org/content/repositories/snapshots"]]
   :plugins [[lein-cljsbuild "0.3.2"]]
   :immutant {:init rivulet.init/start
