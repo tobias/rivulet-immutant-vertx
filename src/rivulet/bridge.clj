@@ -21,14 +21,19 @@
     (assoc (zipmap [:protocol :host :port :path] parts)
       :url (apply format "%s://%s:%s%s" parts))))
 
-(defn dest->eventbus
+(defn- dest->eventbus
+  "Sets up a listener to copy messages from an Immutant messaging dest to a Vertx address.
+   If a selector string is provided, it will be applied to the
+   listener, and only messages matching the selector will be copied."
   ([dest address]
      (dest->eventbus dest address nil))
   ([dest address selector]
-     (with-vertx 
-       (msg/listen dest (partial eb/publish address) :selector selector))))
+     (msg/listen dest #(with-vertx 
+                         (eb/publish address %)) :selector selector)))
 
-(defn eventbus->dest [address dest]
+(defn- eventbus->dest
+  "Sets up a listener to copy messages from a Vertx address to an Immutant messaging dest."
+  [address dest]
   (with-vertx
     (eb/on-message address (partial msg/publish dest))))
 
