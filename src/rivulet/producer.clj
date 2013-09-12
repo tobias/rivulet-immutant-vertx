@@ -6,10 +6,7 @@
 
 (defonce data (-> (io/resource "data") slurp (str/split #"\n")))
 
-(defn start [output-dest]
+(defn init [output-dest]
   (job/schedule :producer
                 #(msg/publish output-dest (rand-nth data))
                 :every 200))
-
-(defn stop []
-  (job/unschedule :producer))

@@ -9,19 +9,11 @@
                    :command-dest "topic.commands"
                    :result-dest "topic.matches"})
 
-(defn start []
+(defn init []
   (mapv msg/start (vals destinations))
-  (control/start destinations)
-  (daemon/start destinations
+  (control/init destinations)
+  (daemon/init destinations
                 :incoming [:command-dest]
                 :outgoing [:stream-dest])
-  (producer/start (:stream-dest destinations))
-  (web/start))
-
-(defn stop []
-  (web/stop)
-  (producer/stop)
-  (daemon/stop)
-  (control/stop)
-  (mapv msg/stop (vals destinations)))
-
+  (producer/init (:stream-dest destinations))
+  (web/init))

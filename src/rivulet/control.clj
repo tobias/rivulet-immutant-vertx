@@ -1,12 +1,5 @@
 (ns rivulet.control
-  (:require [immutant.messaging :as msg]
-            [rivulet.state :refer [remember! recall forget!]]))
-
-(defonce state (atom {}))
-
-(defn- listen [& args]
-  (let [l (apply msg/listen args)]
-    #(msg/unlisten l)))
+  (:require [immutant.messaging :as msg]))
 
 (defn- filter-stream [result-dest id filter data]
   (when (re-find (re-pattern filter) data)
@@ -15,27 +8,26 @@
 (defn- filter-id [client-id filter]
   (str client-id filter))
 
-(defn- remove-stream-filter [client-id filter]
-  (when-let [unlisten-fn (forget! state (filter-id client-id filter))]
-    (unlisten-fn)))
-
-(defn- add-stream-filter [stream-dest result-dest client-id filter]
+(defn- remove-stream-filter [state client-id filter]
   (let [id (filter-id client-id filter)]
-    (when-not (recall state id)
-      (remember! state id
-                 (listen stream-dest
+    (when-let [listener (@state id)]
+      (msg/unlisten listener)
+      (swap! state dissoc id))))
+
+(defn- add-stream-filter [state stream-dest result-dest client-id filter]
+  (let [id (filter-id client-id filter)]
+    (when-not (@state id)
+      (swap! state assoc id
+             (msg/listen stream-dest
                          (partial filter-stream result-dest client-id filter))))))
 
-(defn- dispatch [stream-dest result-dest {:keys [command payload client-id]}]
+(defn- dispatch [state stream-dest result-dest {:keys [command payload client-id]}]
   (condp = command
-    "add-filter" (add-stream-filter stream-dest result-dest client-id payload)
-    "delete-filter" (remove-stream-filter client-id payload)))
+    "add-filter" (add-stream-filter state stream-dest result-dest client-id payload)
+    "delete-filter" (remove-stream-filter state client-id payload)))
 
-(defn start [{:keys [command-dest stream-dest result-dest]}]
-  (remember! state :command-listener
-             (msg/listen command-dest
-                         (partial dispatch stream-dest result-dest))))
+(defn init [{:keys [command-dest stream-dest result-dest]}]
+  (let [state (atom {})]
+    (msg/listen command-dest
+                (partial dispatch state stream-dest result-dest))))
 
-(defn stop []
-  (mapv #(%) (vals @state))
-  (reset! state {}))

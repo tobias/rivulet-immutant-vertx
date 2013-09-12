@@ -32,8 +32,5 @@
 
 (def app (-> routes handler/site))
 
-(defn start []
+(defn init []
   (web/start app))
-
-(defn stop []
-  (web/stop))
