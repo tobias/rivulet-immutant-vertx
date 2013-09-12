@@ -5,7 +5,7 @@
             [hiccup.page :as page]
             [hiccup.form :as form]
             [immutant.web :as web]
-            [rivulet.bridge :as bridge]))
+            [rivulet.daemon :as daemon]))
 
 (defn home []
   (page/html4
@@ -13,7 +13,7 @@
     (page/include-js "client.js")
     (page/include-css "client.css")
     [:script {:type "text/javascript"}
-     (format "var sockjs_endpoint = \"%s\";" (:url (bridge/endpoint)))]]
+     (format "var sockjs_endpoint = \"%s\";" (:url (daemon/endpoint)))]]
    [:body
     [:h2 "Rivulet"]
     (form/text-field :filter)

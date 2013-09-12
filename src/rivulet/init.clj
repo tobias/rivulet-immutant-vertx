@@ -2,7 +2,7 @@
   (:require [immutant.messaging :as msg]
             [rivulet.control :as control]
             [rivulet.producer :as producer]
-            [rivulet.bridge :as bridge]
+            [rivulet.daemon :as daemon]
             [rivulet.web :as web]))
 
 (def destinations {:stream-dest "topic.stream"
@@ -12,7 +12,7 @@
 (defn start []
   (mapv msg/start (vals destinations))
   (control/start destinations)
-  (bridge/start destinations
+  (daemon/start destinations
                 :incoming [:command-dest]
                 :outgoing [:stream-dest])
   (producer/start (:stream-dest destinations))
@@ -21,7 +21,7 @@
 (defn stop []
   (web/stop)
   (producer/stop)
-  (bridge/stop)
+  (daemon/stop)
   (control/stop)
   (mapv msg/stop (vals destinations)))
 
