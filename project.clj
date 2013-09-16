@@ -4,7 +4,7 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1877"]
+                 [org.clojure/clojurescript "0.0-1885"]
                  [cheshire "5.2.0" :exclusions [com.fasterxml.jackson.core/jackson-core]]
                  [io.vertx/clojure-api "0.2.0-SNAPSHOT"]
                  [compojure "1.1.5"]
@@ -18,8 +18,4 @@
              :context-path "/"
              :sockjs-port 8081}
   :cljsbuild {:builds [{:source-paths ["src-cljs"]
-                        :compiler {:output-to "resources/public/client.js"
-                                   :foreign-libs [{:file "js/vertxbus.js"
-                                                   :provides ["vertx.eventbusjs"]}
-                                                  {:file "js/sockjs.js"
-                                                   :provides ["sockjs"]}]}}]})
+                        :compiler {:output-to "resources/public/client.js"}}]})

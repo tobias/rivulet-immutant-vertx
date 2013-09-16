@@ -22,7 +22,7 @@
               {:command command :client-id client-id :payload payload}))
 
 (defn filter-selector [filter]
-  (format "div.filter[data-filter=\"%s\"]" filter))
+  (str "div.filter[data-filter=\"" filter "\"]"))
 
 (defn delete-filter [filter]
   (send-command "delete-filter" filter)
