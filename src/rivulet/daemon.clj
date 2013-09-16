@@ -12,7 +12,10 @@
     (assoc (zipmap [:protocol :host :port :path] parts)
       :url (apply format "%s://%s:%s%s" parts))))
 
-(defn- bridge-client-results [state vertx result-dest _ address]
+(defn- bridge-client-results
+  "Sets up a bridge between the results topic and the results address
+   requested by the client, with a selector based on the client id."
+  [state vertx result-dest address]
   (if-let [id (second (re-find #"^results\.(.*)$" address))]
     (when-not (@state id)
       (swap! state assoc id
@@ -21,7 +24,13 @@
                                     address
                                     (format "JMSCorrelationID='%s'" id))))))
 
-(defn- start [state destinations {:keys [incoming outgoing]}]
+(defn- start
+  "Starts the SockJS server, and bridges the requested incoming and
+   outgoing destionations to like named addresses. Registers a hook on
+   the SockJS server that bridges the requested result address to the
+   results topic, filtered by the client-id."
+  [state destinations
+   {:keys [incoming outgoing]}]
   (let [vertx (bridge/create-vertx)]
     (swap! state assoc
            :vertx vertx
@@ -29,12 +38,14 @@
            (bridge/create-sockjs-server vertx
                                         (endpoint)
                                         :post-register
-                                        (partial bridge-client-results
-                                                 state vertx
-                                                 (:result-dest destinations))))
-    (mapv #(bridge/eventbus->dest vertx (str %) %)
+                                        (fn [_ address]
+                                          (bridge-client-results
+                                           state vertx
+                                           (:result-dest destinations)
+                                           address))))
+    (mapv #(bridge/eventbus->dest vertx % %)
           (map destinations incoming))
-    (mapv #(bridge/dest->eventbus vertx % (str %))
+    (mapv #(bridge/dest->eventbus vertx % %)
           (map destinations outgoing))))
 
 (defn- stop [state]

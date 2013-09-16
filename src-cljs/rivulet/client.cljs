@@ -9,7 +9,10 @@
 
 (def client-id (.-uuid (uuid/make-random)))
 
-(defn open-eventbus [on-open]
+(defn open-eventbus
+  "Opens a connection to the remote EventBus endpoint.
+   See web.clj to see how sockjs_endpoint is injected."
+  [on-open]
   (reset! eb (eb/eventbus js/sockjs_endpoint))
   (eb/on-open @eb #(.log js/console "eventbus opened"))
   (eb/on-open @eb on-open))
@@ -50,7 +53,12 @@
   (prepend-html (str (filter-selector filter) " div.results")
                 [:div result]))
 
-(defn attach-result-listener []
+(defn attach-result-listener
+  "Subscribes to the results.<client-id> address.
+   On the server-side, this will trigger a bridge between
+   results.<client-id> and the results destination, filtered by the
+   client-id (see daemon.clj)."
+  []
   (eb/on-message @eb (str "results." client-id) result-listener))
 
 (let [raw-handler (atom nil)]
